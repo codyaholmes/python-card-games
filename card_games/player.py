@@ -8,10 +8,10 @@ class Player:
         self.score = 0
 
     def __str__(self) -> str:
-        return f'Player({self.name}, {str(self.id.int)[:5]})'
+        return f'{self.name[:2]} (ID {str(self.id)[:3]})'
     
     def __repr__(self) -> str:
-        return f'Player(name={self.name}, id={str(self.id.int)[:5]}...)'
+        return f'Player(name={self.name}, id={str(self.id.int)}...)'
     
     @property
     def hand_count(self) -> int:

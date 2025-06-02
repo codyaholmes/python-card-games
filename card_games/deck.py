@@ -2,7 +2,7 @@ from random import shuffle
 
 class Deck:
     def __init__(self):
-        self.suits = ['s', 'c', 'h', 'd']
+        self.suits = ['♠️', '♣️', '❤️', '♦️']
         self._court_str = ['J', 'Q', 'K', 'A']
         self._court_val = [i for i in range(11, 15)]
         self._nums_str = [str(n) for n in range(2, 11)]
