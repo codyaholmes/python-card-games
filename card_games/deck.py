@@ -13,7 +13,6 @@ class Deck:
         self.value_map.update(self._court_map)
         self.value_map.update(self._nums_map)
         self.cards = list(self.value_map.keys())
-        print('Once game type is instantiated, e.g. war = War(deck, ...), use the game object deck (war.deck) instead.')
 
     @property
     def deck_count(self) -> int:

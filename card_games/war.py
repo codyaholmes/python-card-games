@@ -25,10 +25,9 @@ class War:
             player.take_cards(self.deck.deal_cards(hand_deal_count))
 
     def battle(self):
-        # Holds the cards being battled
+        # Holds the cards being battled or moved to the war pool
         battle_pool = {}
         war_pool = []
-        tied_players = []
 
         # Build the battle pool
         for player in self.players:
@@ -53,7 +52,14 @@ class War:
 
         if winning_cards_counter[winning_card_value] > 1:
             print('WAR HAS BEEN DECLARED!')
+            war_pool.extend(battle_cards)
+            self.battle()
         else:
-            battle_pool = {}
-            print('Award card here.')
+            winning_card = [card for card in battle_cards if self.deck.card_value(card) == winning_card_value][0]
+            winning_player = battle_pool[winning_card]
+            
+            print(f'{winning_player} won the battle with [ {winning_card} ].')
     
+            # Reset the battle and war pools for another round
+            battle_pool = {}
+            war_pool = []
