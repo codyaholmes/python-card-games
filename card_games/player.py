@@ -11,7 +11,8 @@ class Player:
         return f'{self.name[:2]} (ID {str(self.id)[:3]})'
     
     def __repr__(self) -> str:
-        return f'Player(name={self.name}, id={str(self.id.int)}...)'
+        return f'{self.name[:2]} (ID {str(self.id)[:3]})'
+        # return f'Player(name={self.name}, id={str(self.id.int)}...)'
     
     @property
     def hand_count(self) -> int:
@@ -28,7 +29,7 @@ class Player:
         if self.hand_count == 0:
             print(f'{self.name} has no cards to play!')
         else:
-            card_played = self.hand.pop()
+            card_played = self.hand.pop(0)
             return card_played
 
     def play_cards(self, qty: list) -> list:
@@ -37,5 +38,5 @@ class Player:
         elif len(self.hand) < qty:
             print(f'{self.name} cannot play more cards than they have!')
         else:
-            cards_played: list = [self.hand.pop() for i in range(qty)]
+            cards_played: list = [self.hand.pop(0) for i in range(qty)]
             return cards_played

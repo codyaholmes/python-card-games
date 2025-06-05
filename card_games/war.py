@@ -1,18 +1,20 @@
 from deck import Deck
 from collections import Counter
+from pprint import pprint
 
 class War:
     def __init__(self, deck: Deck, players: list) -> None:
         self.deck = deck
         self.battle_cards = []
-        self.war_cards = []
         self.players = players
         self.battle_round = 1
         # Holds the cards being battled or moved to the war pool
         self.battle_pool = {}
         self.war_pool = []
+        self.war_players = []
         # Holds leftover cards when deck not evenly divisible by player count
         self.leftovers = []
+        self.war_start = False
 
     def build_hands(self) -> None:
         # Shuffle the deck if not already shuffled
@@ -34,70 +36,98 @@ class War:
 
     def battle(self) -> int:
 
-        # Check to see if player has no cards. If so, remove them.
-        for player in self.players:
-            if player.hand_count == 0:
-                self.players.remove(player)
-                print(f'>> {player} has been destroyed. 😭')
-
-        # Build the battle pool
-        for player in self.players:
-            played_card = player.play_card()
-            self.battle_pool[played_card] = player
-            print(f'>> {player} played {played_card}')
-
-        print()
-
-        # Award cards or declare a war
-        battle_cards = self.battle_pool.keys()
-        battle_values = [self.deck.card_value(card) for card in battle_cards]
-        winning_cards_counter = Counter(battle_values)
-        winning_card_value = max(winning_cards_counter.keys())
-
-        # print(self.battle_pool)
-        # print(winning_cards_counter)
-        # for player in self.players:
-        #     print(f'{player} has {player.hand_count} cards left.')
-        # print()
-
-        # Check if war needs to be declared or give winning player spoils
-        if winning_cards_counter[winning_card_value] > 1:
-            print('>> WAR HAS BEEN DECLARED! 💥')
+        def regular_battle(self, war_start):
+            print(f'BATTLE ROUND {self.battle_round} ********')
             print()
-            self.war_pool.extend(battle_cards)
 
-            # Check to see if players have enough for war.
-            # If not, add their cards to the war pool and remove them.
-            for player in self.players:
-                hand_count = player.hand_count
-                if hand_count < 3:
-                    self.war_pool.extend(player.play_cards(hand_count))
-                    self.players.remove(player)
-                    print(f'>> {player} did not have enough troops for war and has been eliminated. 😭')
+            # Set the players, depending on if game is in a war iteration
+            if war_start:
+                players = self.war_players
+            else:
+                players = self.players
+
+            for player in players:
+                if player.hand_count == 0:
+                    print(f'>> {player.name} has no more troops and has been eliminated')
 
                 else:
-                    self.war_pool.extend(player.play_cards(3))
+                    played_card = player.play_card()
+                    self.battle_cards.append(played_card)
+
+                    print(f'>> {player.name} played {played_card}')
+
+                    # Build the battle pool
+                    self.battle_pool[played_card] = {
+                        'player': player,
+                        'card_value': self.deck.card_value(played_card)
+                    }
+
+                    # TESTING: SHOW THE BATTLE POOL
+                    pprint(self.battle_pool)
+                    print()
+
+                # Determine winner
+                battle_card_values = [v['card_value'] for v in self.battle_pool.values()]
+                battle_card_counter = Counter(battle_card_values)
+                max_card_value = max(battle_card_counter.keys())
+                winning_cards = [card for card in self.battle_cards if self.deck.card_value(card) == max_card_value]
+                winners = [self.battle_pool[card]['player'] for card in winning_cards]
+                winner_count = len(winners)
+
+                # TESTING
+                print('## Battle card counter:', battle_card_counter)
+                print('## Max card value:', max_card_value)
+                print('## Winning card(s):', winning_cards)
+                print('## Winners:', winners)
+                print('## Winner count:', winner_count)
+                print()
+
+                # If winner is clear, assign the spoils and reset internals
+                if winner_count == 1:
+                    winner = winners[0]
+                    winner.take_cards(self.battle_cards)
+
+                    print(f'{winner} has taken the battle spoils:')
+                    print(self.battle_pool)
+                    print()
+
+                    if self.war_pool:
+                        winner.take_cards(self.war_pool)
+
+                        print(f'{winner} has taken the war spoils:')
+                        print(self.war_pool)
+                        print()
+
+                    # Reset internal game data and iterate round
+                    self.battle_pool = {}
+                    self.battle_cards = []
+                    self.war_pool = []
+                    self.war_players = []
+                    self.war_start = False
                     self.battle_round += 1
 
-        else:
-            winning_card = [card for card in battle_cards if self.deck.card_value(card) == winning_card_value][0]
-            winning_player = self.battle_pool[winning_card]
-            winning_player.take_cards(battle_cards)
-            self.battle_pool = {} # Reset battle pool
+                # If multiple winners, prep internals for war
+                else:
+                    print('>> WAR HAS BEEN DECLARED!')
+                    print()
 
-            print(f'>> {winning_player} won the battle with {winning_card}.')
-            print()
+                    # Add all winners to the war players list
+                    self.war_players.extend(winners)
 
-            # Give the winning player the war pool after war iterations
-            if self.war_pool:
-                winning_player.take_cards(self.war_pool)
-                self.war_pool = [] # Reset war pool
-    
-            self.battle_round += 1
+                    # Check to ensure war players have enough troops for war
+                    for player in self.war_players:
+                        hand_count = player.hand_count
+                        if hand_count <= 3:
+                            self.war_players.remove(player)
+                            self.players.remove(player)
+                            self.war_pool.extend(player.play_cards(hand_count))
+                            print(f'>> {player.name} does not have enough troops for war and has been eliminated!')
+                            print()
 
-        for player in self.players:
-            print(f'>> {player} has {player.hand_count} cards left.')
-        
-        print()
-        print(f'Round {self.battle_round} ********')
-            
+                    # Check to ensure there are still enough players for war
+                    if len(self.war_players) == 1:
+
+
+        regular_battle(self, self.war_start)
+
+

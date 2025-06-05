@@ -23,7 +23,7 @@ def main():
     war = War(deck, players)
     war.build_hands()
 
-    print(f'Round 1 ********')
+    # print(f'Round 1 ********')
 
     while True:
         war.battle()
@@ -35,8 +35,8 @@ def main():
             print(f'{winning_player} has won the war after {total_rounds} battles! 🏆')
             break
 
-        response = input("Play another round? (y/n) ").lower()
-        if response == 'y':
+        response = input("Play another round? Hit any key. (Type 'q' to quit.) ").lower()
+        if response != 'q':
             continue
         else:
             break

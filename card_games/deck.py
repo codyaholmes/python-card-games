@@ -26,14 +26,14 @@ class Deck:
         if self.deck_count == 0:
             print('There are no more cards in the deck to deal.')
         else:
-            card = self.cards.pop()
+            card = self.cards.pop(0)
             return card
     
     def deal_cards(self, qty: str) -> list:
         if qty > self.deck_count:
             print('You cannot deal more cards than what is in the deck!')
         else:
-            cards = [self.cards.pop() for i in range(qty)]
+            cards = [self.cards.pop(0) for i in range(qty)]
             return cards
         
     def card_value(self, card: str) -> int:
