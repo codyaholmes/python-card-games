@@ -126,8 +126,6 @@ class War:
 
                     # Check to ensure there are still enough players for war
                     if len(self.war_players) == 1:
-
+                        ...
 
         regular_battle(self, self.war_start)
-
-
