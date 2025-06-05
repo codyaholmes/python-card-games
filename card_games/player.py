@@ -1,4 +1,5 @@
 import uuid
+from random import shuffle
 
 class Player:
     def __init__(self, name: str):
@@ -40,3 +41,6 @@ class Player:
         else:
             cards_played: list = [self.hand.pop(0) for i in range(qty)]
             return cards_played
+        
+    def shuffle_hand(self):
+        shuffle(self.hand)

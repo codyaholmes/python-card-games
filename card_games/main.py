@@ -35,11 +35,11 @@ def main():
             print(f'{winning_player} has won the war after {total_rounds} battles! 🏆')
             break
 
-        response = input("Play another round? Hit any key. (Type 'q' to quit.) ").lower()
-        if response != 'q':
-            continue
-        else:
-            break
+        # response = input("Play another round? Hit any key. (Type 'q' to quit.) ").lower()
+        # if response != 'q':
+        #     continue
+        # else:
+        #     break
 
 if __name__ == '__main__':
     main()

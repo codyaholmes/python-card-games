@@ -36,7 +36,7 @@ class War:
 
     def battle(self) -> int:
 
-        def regular_battle(self, war_start):
+        def regular_battle(self, war_start: bool) -> None:
             print(f'BATTLE ROUND {self.battle_round} ********')
             print()
 
@@ -53,12 +53,15 @@ class War:
             for player in players:
                 if player.hand_count == 0:
                     print(f'>> {player.name} has no more troops and has been eliminated')
+                    self.players.remove(player)
 
                 else:
                     played_card = player.play_card()
+                    player.shuffle_hand()
                     self.battle_cards.append(played_card)
 
                     print(f'>> {player.name} played {played_card}')
+                    print(f">> {player.name}'s hand: {player.hand}")
 
                     # Build the battle pool
                     self.battle_pool[played_card] = {
@@ -80,12 +83,12 @@ class War:
             winner_count = len(winners)
 
             # TESTING
-            print('## Battle card counter:', battle_card_counter)
-            print('## Max card value:', max_card_value)
-            print('## Winning card(s):', winning_cards)
-            print('## Winners:', winners)
-            print('## Winner count:', winner_count)
-            print()
+            # print('## Battle card counter:', battle_card_counter)
+            # print('## Max card value:', max_card_value)
+            # print('## Winning card(s):', winning_cards)
+            # print('## Winners:', winners)
+            # print('## Winner count:', winner_count)
+            # print()
 
             # If winner is clear, assign the spoils and reset internals
             if winner_count == 1:
@@ -93,14 +96,14 @@ class War:
                 winner.take_cards(self.battle_cards)
 
                 print(f'{winner} has taken the battle spoils:')
-                print(self.battle_pool)
+                print(", ".join(self.battle_pool.keys()))
                 print()
 
                 if self.war_pool:
                     winner.take_cards(self.war_pool)
 
                     print(f'>> {winner} has taken the war spoils:')
-                    print(self.war_pool)
+                    print(", ".join(self.war_pool))
                     print()
 
                 # Reset internal game data and iterate round
@@ -122,7 +125,15 @@ class War:
                 # Check to ensure war players have enough troops for war
                 for player in self.war_players:
                     hand_count = player.hand_count
-                    if hand_count <= 3:
+
+                    # Check first to see if they have any cards left
+                    if hand_count == 0:
+                        self.war_players.remove(player)
+                        self.players.remove(player)
+                        print(f'>> {player.name} has no troops left and has been eliminated.')
+                        print()
+
+                    elif hand_count <= 3:
                         self.war_players.remove(player)
                         self.players.remove(player)
                         self.war_pool.extend(player.play_cards(hand_count))
@@ -135,7 +146,9 @@ class War:
                     # If only one war player left, give them the war spoils
                     winner = self.war_players[0]
                     winner.take_cards(self.battle_cards)
-                    winner.take_cards(self.war_pool)
+
+                    if self.war_pool:
+                        winner.take_cards(self.war_pool)
 
                     print(f'>> {winner} has taken the war spoils:')
                     print(self.battle_cards)
@@ -152,7 +165,9 @@ class War:
 
                 # Players have enough resources; war must ensue!
                 else:
-                    ... # war(self)...
-
+                    self.war_start = True
+                    self.war_pool.extend(self.battle_cards)
+                    self.battle_cards = []
+                    self.battle_pool = {}
 
         regular_battle(self, self.war_start)
